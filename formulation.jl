@@ -34,7 +34,7 @@ deltaOrange = cat(Orange1_std, Orange2_std, dims = 3);
 deltaGreen = cat(Green1_std, Green2_std, dims = 3);
 deltaRed = cat(Red1_std, Red2_std, dims = 3);
 
-function optimize_blue()
+function optimize_blue(number_trains)
 
     cost_blue = 2000;
     capacity_blue = 300;
@@ -78,7 +78,7 @@ function optimize_blue()
 end
 
 
-function optimize_blue_robust(Gamma)
+function optimize_blue_robust(Gamma, number_trains)
     cost_blue = 2000;
     capacity_blue = 300;
     q=5;
@@ -129,7 +129,7 @@ function optimize_blue_robust(Gamma)
     return value.(x), value.(s), value.(r), value.(u), objective_value(modelBlue)
 end
 
-function optimize_orange()
+function optimize_orange(number_trains)
     cost_orange = 5000;
     capacity_orange = 1000;
     q=5;
@@ -174,7 +174,7 @@ function optimize_orange()
 
     @constraint(modelOrange, [j=1:times, d=1:directions], x[d,j] + s[d,j] >= 1)
 
-    @constraint(modelBlue,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
+    @constraint(modelOrange,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
 
     @objective(modelOrange, Min, sum(sum(cost_orange * x[d,j] + 0.9 * cost_orange * s[d,j] + 
                 sum(q * u[d,j,i] for i=1:stations_o) for d=1:directions) for j=1:times))
@@ -184,7 +184,7 @@ function optimize_orange()
     return value.(x), value.(s), value.(r), value.(u), objective_value(modelOrange)
 end
 
-function optimize_orange_robust(Gamma)
+function optimize_orange_robust(Gamma, number_trains)
     cost_orange = 5000;
     capacity_orange = 1000;
     q=5;
@@ -226,7 +226,7 @@ function optimize_orange_robust(Gamma)
 
     @constraint(modelOrange, [j=1:times, d=1:directions], x[d,j] + s[d,j] >= 1)
 
-    @constraint(modelBlue,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
+    @constraint(modelOrange,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
 
     @objective(modelOrange, Min, sum(sum(cost_orange * x[d,j] + 0.9 * cost_orange * s[d,j] + 
                 sum(q * u[d,j,i] for i=1:stations_o) for d=1:directions) for j=1:times))
@@ -236,7 +236,7 @@ function optimize_orange_robust(Gamma)
     return value.(x), value.(s), value.(r), value.(u), objective_value(modelOrange)
 end
 
-function optimize_red()
+function optimize_red(number_trains)
     cost_red = 5000;
     capacity_red = 1000;
     q=5;
@@ -288,7 +288,7 @@ function optimize_red()
 
     @constraint(modelRed, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
 
-    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
+    @constraint(modelRed,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelRed, Min, sum( sum(cost_red * x[d,j,l] + 0.9 * cost_red * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_r) for d=1:directions,  j=1:times))
@@ -298,7 +298,7 @@ function optimize_red()
     return value.(x), value.(s), value.(r),value.(u), objective_value(modelRed)
 end
 
-function optimize_red_robust(Gamma)
+function optimize_red_robust(Gamma, number_trains)
     cost_red = 5000;
     capacity_red = 1000;
     q=5;
@@ -357,7 +357,7 @@ function optimize_red_robust(Gamma)
 
     @constraint(modelRed, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
 
-    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
+    @constraint(modelRed,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelRed, Min, sum( sum(cost_red * x[d,j,l] + 0.9 * cost_red * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_r) for d=1:directions,  j=1:times))
@@ -367,7 +367,7 @@ function optimize_red_robust(Gamma)
     return value.(x), value.(s), value.(u), value.(r), objective_value(modelRed)
 end
 
-function optimize_green()
+function optimize_green(number_trains)
     capacity_green = 200;
     cost_green = 1300;
     q = 5;
@@ -434,7 +434,7 @@ function optimize_green()
 
     @constraint(modelGreen, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
 
-    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
+    @constraint(modelGreen,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelGreen, Min, sum( sum(cost_green * x[d,j,l] + 0.9 * cost_green * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_g) for d=1:directions,  j=1:times))
@@ -444,7 +444,7 @@ function optimize_green()
     return value.(x), value.(s), value.(u), value.(r), objective_value(modelGreen)
 end
 
-function optimize_green_robust(Gamma)
+function optimize_green_robust(Gamma, number_trains)
     capacity_green = 200;
     cost_green = 1300;
     q = 5;
@@ -520,7 +520,7 @@ function optimize_green_robust(Gamma)
 
     @constraint(modelGreen, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
 
-    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
+    @constraint(modelGreen,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelGreen, Min, sum( sum(cost_green * x[d,j,l] + 0.9 * cost_green * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_g) for d=1:directions,  j=1:times))
