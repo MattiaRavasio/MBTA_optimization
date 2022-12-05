@@ -52,7 +52,7 @@ function optimize_blue()
         u[d,j,i] + capacity_blue * (x[d,j] + s[d,j]) >= AvgFlowBlue[i,j,d] + u[d,j-1,i])
     @constraint(modelBlue, [d=1:directions, i=1:stations_b], 
         u[d,1,i] + capacity_blue * (x[d,1] + s[d,1]) >= AvgFlowBlue[i,1,d])
-    @constraint(modelBlue,  [d=1:directions,  i=1:stations_b], u[d,9,i] == 0 )
+    #@constraint(modelBlue,  [d=1:directions,  i=1:stations_b], u[d,9,i] == 0 )
 
     @constraint(modelBlue,  r[2,1] ==   x[1,1] )
     @constraint(modelBlue,  r[1,1] ==  x[2,1]  ) 
@@ -67,7 +67,7 @@ function optimize_blue()
 
     @constraint(modelBlue, [j=1:times, d=1:directions], x[d,j] + s[d,j] >= 1)
 
-    #@constraint(modelBlue, [j=1:times], x[1,j] + x[2,j] + s[1,j] + s[2,j] + r[1,j] + r[2,j] <= number_trains)
+    @constraint(modelBlue,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
 
     @objective(modelBlue, Min, sum(sum(cost_blue * x[d,j] + 0.95 * cost_blue * s[d,j] + 
                 sum(q * u[d,j,i] for i=1:stations_b) for d=1:directions) for j=1:times))
@@ -100,7 +100,7 @@ function optimize_blue_robust(Gamma)
         u[d,j,i] + capacity_blue * (x[d,j] + s[d,j]) >= -AvgFlowBlue[i,j,d]*alpha[d,j,i] + AvgFlowBlue[i,j,d]*beta[d,j,i] + Gamma*l + u[d,j-1,i])
     @constraint(modelBlue, [d=1:directions, i=1:stations_b], 
         u[d,1,i] + capacity_blue * (x[d,1] + s[d,1]) >= -AvgFlowBlue[i,1,d]*alpha[d,1,i] + AvgFlowBlue[i,1,d]*beta[d,1,i] + Gamma*l )
-    @constraint(modelBlue,  [d=1:directions,  i=1:stations_b], u[d,9,i] == 0 )
+    #@constraint(modelBlue,  [d=1:directions,  i=1:stations_b], u[d,9,i] == 0 )
 
     @constraint(modelBlue, [d=1:directions, j=1:times, i=1:stations_b], -alpha[d,j,i] + beta[d,j,i] >= 1)
     @constraint(modelBlue, [d=1:directions, j=1:times, i=1:stations_b], -deltaBlue[i,j,d] * alpha[d,j,i] - deltaBlue[i,j,d] * beta[d,j,i] + lambda[d,j,i] - phi[d,j,i] >= 0)
@@ -118,6 +118,8 @@ function optimize_blue_robust(Gamma)
     @constraint(modelBlue, [d=1:directions], r[2, times]  >=  x[2,1])
 
     @constraint(modelBlue, [j=1:times, d=1:directions], x[d,j] + s[d,j] >= 1)
+
+    @constraint(modelBlue,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
 
     @objective(modelBlue, Min, sum(sum(cost_blue * x[d,j] + 0.95 * cost_blue * s[d,j] + 
                 sum(q * u[d,j,i] for i=1:stations_b) for d=1:directions) for j=1:times))
@@ -157,7 +159,7 @@ function optimize_orange()
         u[d,j,i] + capacity_orange * (x[d,j] + s[d,j]) >= AvgFlowOrange[i,j,d] + u[d,j-1,i])
     @constraint(modelOrange, [d=1:directions, i=1:stations_o], 
         u[d,1,i] + capacity_orange * (x[d,1] + s[d,1]) >= AvgFlowOrange[i,1,d])
-    @constraint(modelOrange,  [d=1:directions, i=1:stations_o],  u[d,9,i] == 0 )
+    #@constraint(modelOrange,  [d=1:directions, i=1:stations_o],  u[d,9,i] == 0 )
 
     @constraint(modelOrange,  r[2,1] ==   x[1,1] )
     @constraint(modelOrange,  r[1,1] ==  x[2,1]  ) 
@@ -171,6 +173,8 @@ function optimize_orange()
     @constraint(modelOrange, [d=1:directions], r[2, times]  >=  x[2,1])
 
     @constraint(modelOrange, [j=1:times, d=1:directions], x[d,j] + s[d,j] >= 1)
+
+    @constraint(modelBlue,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
 
     @objective(modelOrange, Min, sum(sum(cost_orange * x[d,j] + 0.9 * cost_orange * s[d,j] + 
                 sum(q * u[d,j,i] for i=1:stations_o) for d=1:directions) for j=1:times))
@@ -203,7 +207,7 @@ function optimize_orange_robust(Gamma)
         u[d,j,i] + capacity_orange * (x[d,j] + s[d,j]) >= -AvgFlowOrange[i,j,d]*alpha[d,j,i] + AvgFlowOrange[i,j,d]*beta[d,j,i] + Gamma*l + u[d,j-1,i])
     @constraint(modelOrange, [d=1:directions, i=1:stations_o], 
         u[d,1,i] + capacity_orange * (x[d,1] + s[d,1]) >= -AvgFlowOrange[i,1,d]*alpha[d,1,i] + AvgFlowOrange[i,1,d]*beta[d,1,i] + Gamma*l )
-    @constraint(modelOrange,  [d=1:directions, i=1:stations_o],  u[d,9,i] == 0 )
+    #@constraint(modelOrange,  [d=1:directions, i=1:stations_o],  u[d,9,i] == 0 )
 
     @constraint(modelOrange, [d=1:directions, j=1:times, i=1:stations_o], -alpha[d,j,i] + beta[d,j,i] >= 1)
     @constraint(modelOrange, [d=1:directions, j=1:times, i=1:stations_o], -deltaOrange[i,j,d] * alpha[d,j,i] - deltaOrange[i,j,d] * beta[d,j,i] + lambda[d,j,i] - phi[d,j,i] >= 0)
@@ -221,6 +225,8 @@ function optimize_orange_robust(Gamma)
     @constraint(modelOrange, [d=1:directions], r[2, times]  >=  x[2,1])
 
     @constraint(modelOrange, [j=1:times, d=1:directions], x[d,j] + s[d,j] >= 1)
+
+    @constraint(modelBlue,  sum(x[1,:]) + sum(x[2,:]) <= number_trains)
 
     @objective(modelOrange, Min, sum(sum(cost_orange * x[d,j] + 0.9 * cost_orange * s[d,j] + 
                 sum(q * u[d,j,i] for i=1:stations_o) for d=1:directions) for j=1:times))
@@ -266,7 +272,7 @@ function optimize_red()
         u[d,j,i] + (sum(capacity_red * (x[d,j,l] + s[d,j,l]) * z_red[l,i] for l=1:lines)) >= AvgFlowRed[i,j,d] + u[d,j-1,i])
     @constraint(modelRed, [d=1:directions,  i=1:stations_r], 
         u[d,1,i] + (sum(capacity_red * (x[d,1,l] + s[d,1,l]) * z_red[l,i] for l=1:lines)) >= AvgFlowRed[i,1,d])
-    @constraint(modelRed,  [d=1:directions, i=1:stations_r],  u[d,9,i] == 0 )
+    #@constraint(modelRed,  [d=1:directions, i=1:stations_r],  u[d,9,i] == 0 )
     
 
     @constraint(modelRed, [l=1:lines], r[2,1,l] ==   x[1,1,l] )
@@ -281,6 +287,8 @@ function optimize_red()
     @constraint(modelRed, [d=1:directions, l=1:lines], r[2, times, l]  >=  x[2,1,l])
 
     @constraint(modelRed, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
+
+    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelRed, Min, sum( sum(cost_red * x[d,j,l] + 0.9 * cost_red * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_r) for d=1:directions,  j=1:times))
@@ -330,7 +338,7 @@ function optimize_red_robust(Gamma)
         u[d,j,i] + (sum(capacity_red * (x[d,j,l] + s[d,j,l]) * z_red[l,i] for l=1:lines)) >= -AvgFlowRed[i,j,d]*alpha[d,j,i] + AvgFlowRed[i,j,d]*beta[d,j,i] + Gamma*l + u[d,j-1,i])
     @constraint(modelRed, [d=1:directions,  i=1:stations_r], 
         u[d,1,i] + (sum(capacity_red * (x[d,1,l] + s[d,1,l]) * z_red[l,i] for l=1:lines)) >= -AvgFlowRed[i,1,d]*alpha[d,1,i] + AvgFlowRed[i,1,d]*beta[d,1,i] + Gamma*l )
-    @constraint(modelRed,  [d=1:directions, i=1:stations_r],  u[d,9,i] == 0 )
+    #@constraint(modelRed,  [d=1:directions, i=1:stations_r],  u[d,9,i] == 0 )
 
     @constraint(modelRed, [d=1:directions, j=1:times, i=1:stations_r], -alpha[d,j,i] + beta[d,j,i] >= 1)
     @constraint(modelRed, [d=1:directions, j=1:times, i=1:stations_r], -deltaRed[i,j,d] * alpha[d,j,i] - deltaRed[i,j,d] * beta[d,j,i] + lambda[d,j,i] - phi[d,j,i] >= 0)
@@ -348,6 +356,8 @@ function optimize_red_robust(Gamma)
     @constraint(modelRed, [d=1:directions, l=1:lines], r[2, times, l]  >=  x[2,1,l])
 
     @constraint(modelRed, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
+
+    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelRed, Min, sum( sum(cost_red * x[d,j,l] + 0.9 * cost_red * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_r) for d=1:directions,  j=1:times))
@@ -409,7 +419,7 @@ function optimize_green()
         (sum(capacity_green * (x[d,j,l]) * z_green[l,i] for l=1:lines)) >= AvgFlowGreen[i,j,d])
     @constraint(modelGreen, [d=1:directions, i=1:stations_g], 
         u[d,1,i] + (sum(capacity_green * (x[d,1,l] + s[d,1,l]) * z_green[l,i] for l=1:lines)) >= AvgFlowGreen[i,1,d])
-    @constraint(modelGreen, [d=1:directions, i=1:stations_g], u[d,9,i]==0)
+    #@constraint(modelGreen, [d=1:directions, i=1:stations_g], u[d,9,i]==0)
 
     @constraint(modelGreen, [l=1:lines], r[2,1,l] ==   x[1,1,l])
     @constraint(modelGreen, [l=1:lines], r[1,1,l] ==  x[2,1,l]) 
@@ -423,6 +433,8 @@ function optimize_green()
     @constraint(modelGreen, [d=1:directions, l=1:lines], r[2, times, l]  >=  x[2,1,l])
 
     @constraint(modelGreen, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
+
+    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelGreen, Min, sum( sum(cost_green * x[d,j,l] + 0.9 * cost_green * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_g) for d=1:directions,  j=1:times))
@@ -489,7 +501,7 @@ function optimize_green_robust(Gamma)
         (sum(capacity_green * (x[d,j,l]) * z_green[l,i] for l=1:lines)) >= -AvgFlowGreen[i,j,d]*alpha[d,j,i] + AvgFlowGreen[i,j,d]*beta[d,j,i] + Gamma*l + u[d,j-1,i])
     @constraint(modelGreen, [d=1:directions, i=1:stations_g], 
         u[d,1,i] + (sum(capacity_green * (x[d,1,l] + s[d,1,l]) * z_green[l,i] for l=1:lines)) >= -AvgFlowGreen[i,1,d]*alpha[d,1,i] + AvgFlowGreen[i,1,d]*beta[d,1,i] + Gamma*l )
-    @constraint(modelGreen, [d=1:directions, i=1:stations_g], u[d,9,i]==0)
+    #@constraint(modelGreen, [d=1:directions, i=1:stations_g], u[d,9,i]==0)
 
     @constraint(modelGreen, [d=1:directions, j=1:times, i=1:stations_g], -alpha[d,j,i] + beta[d,j,i] >= 1)
     @constraint(modelGreen, [d=1:directions, j=1:times, i=1:stations_g], -deltaGreen[i,j,d] * alpha[d,j,i] - deltaGreen[i,j,d] * beta[d,j,i] + lambda[d,j,i] - phi[d,j,i] >= 0)
@@ -507,6 +519,8 @@ function optimize_green_robust(Gamma)
     @constraint(modelGreen, [d=1:directions, l=1:lines], r[2, times, l]  >=  x[2,1,l])
 
     @constraint(modelGreen, [j=1:times, d=1:directions, l=1:lines], x[d,j,l] + s[d,j,l] >= 1)
+
+    @constraint(modelBlue,[l=1:lines],  sum(x[1,:,l]) + sum(x[2,:,l]) <= number_trains)
 
     @objective(modelGreen, Min, sum( sum(cost_green * x[d,j,l] + 0.9 * cost_green * s[d,j,l] for l=1:lines ) + 
                     sum(q * u[d,j,i] for i=1:stations_g) for d=1:directions,  j=1:times))
