@@ -287,7 +287,7 @@ function optimize_red()
 
     optimize!(modelRed)
 
-    return value.(x), value.(s), value.(u), objective_value(modelRed)
+    return value.(x), value.(s), value.(r),,value.(u), objective_value(modelRed)
 end
 
 function optimize_red_robust(Gamma)
